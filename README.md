@@ -3,11 +3,13 @@ Packer Qemu Template
 
 # Prerequisite
 - Packer (v1.9.4)
+- Pakcer Plugin Qemu (v1.0.9)
 - QEMU (7.1.0)
 
 # TODO list
 
 - [x] Check apt source address can be changed (solution: add apt sources in http/user-data)
+- [ ] Add Variable hcl file.
 - [ ] Add network configuration shell script
 - [ ] Check bridge setting is working
 - [ ] Check Ansible Provisioning is working
