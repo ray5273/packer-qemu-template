@@ -1,5 +1,8 @@
 source "qemu" "example" {
-  iso_urls         = ["file:///home/sh/packer-qemu/ubuntu-22.04.2-live-server-amd64.iso","http://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.2-live-server-amd64.iso"]
+  iso_urls         = [
+	"file:///home/sh/packer-qemu/ubuntu-22.04.2-live-server-amd64.iso",
+	"http://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.2-live-server-amd64.iso"
+  ]
   iso_checksum     = "sha256:5e38b55d57d94ff029719342357325ed3bda38fa80054f9330dc789cd2d43931"
   output_directory = "output"
   shutdown_command = "echo 'ubuntu' | sudo -S shutdown -P now"
@@ -17,7 +20,7 @@ source "qemu" "example" {
   memory           = 4096
   vm_name          = "2204-live-server"
   net_device       = "virtio-net"
-  disk_interface   = "virtio-scsi"
+  disk_interface   = "virtio"
   boot_wait        = "20s"
   boot_command = [
 	"c",

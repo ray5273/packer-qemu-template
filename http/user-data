@@ -6,6 +6,12 @@ autoinstall:
     layout: us
   early-commands:
     - systemctl stop ssh
+  late-commands:
+    - |
+      if [ -d /sys/firmware/efi ]; then
+        apt-get install -y efibootmgr
+        efibootmgr -o $(efibootmgr | perl -n -e '/Boot(.+)\* ubuntu/ && print $1')
+      fi
   ssh:
     install-server: true
     allow-pw: true
