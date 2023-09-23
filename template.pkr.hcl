@@ -8,7 +8,7 @@ source "qemu" "example" {
   accelerator      = "kvm"
   http_directory   = "http"
   ssh_username     = "ubuntu"
-  ssh_password     = "s0m3password"
+  ssh_password     = "ubuntu"
   ssh_pty	   = true
   ssh_timeout      = "20m"
   machine_type     = "pc-q35-7.1"
@@ -17,7 +17,7 @@ source "qemu" "example" {
   memory           = 4096
   vm_name          = "2204-live-server"
   net_device       = "virtio-net"
-  disk_interface   = "virtio"
+  disk_interface   = "virtio-scsi"
   boot_wait        = "20s"
   boot_command = [
 	"c",

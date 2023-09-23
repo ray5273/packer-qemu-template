@@ -2,41 +2,34 @@
 autoinstall:
   version: 1
   locale: en_US
-  early-commands:
-    - sudo systemctl stop ssh
-  apt:
-    geoip: true
-    disable_components: []
-    preserve_sources_list: false
-    primary:
-      - arches: [amd64, i386]
-        uri: http://kr.archive.ubuntu.com/ubuntu/
-  packages: [openssh-server, curl, vim]
-  identity:
-    hostname: ubuntu-server
-    username: ubuntu
-    password: s0m3password
-  network:
-       ethernets:
-         ens33f0:
-           dhcp4: true
-       version: 2
   keyboard:
     layout: us
-  storage:
-    layout:
-      name: lvm
+  early-commands:
+    - systemctl stop ssh
   ssh:
     install-server: true
     allow-pw: true
+    ssh_quiet_keygen: true
+    allow_public_ssh_keys: true
+  packages:
+    - qemu-guest-agent
+    - sudo
+    - curl
+    - ca-certificates
+  storage:
+    layout:
+      name: direct
+    swap:
+      size: 0
   user-data:
-    disable_root: false
+    package_upgrade: false
     timezone: KST
-  late-commands:
-    - sed -i -e 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/g' /target/etc/ssh/sshd_config
-    - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
-    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
-    - curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/ubuntu
-    # storage was a pain in the ass and merged multiple things, I just want a 100% use of the fs. (alt option: https://gist.github.com/anedward01/b68e00bb2dcfa4f1335cd4590cbc8484#file-user-data-L97-L199)
-    - curtin in-target --target=/target -- lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
-    - curtin in-target --target=/target -- resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
+    users:
+      - name: ubuntu
+        groups: [adm, sudo]
+        lock-passwd: false
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        shell: /bin/bash
+        passwd: "$6$X9FuqL144YwlcJ9r$7f528TOYnE4XS/Ks10u91RP56H6mKcMHFzAy69rCOhFo4yIyyfBSadfQeX5f93DMIC086pbJUDbxmph2fEwT51"
+        ssh_authorized_keys:
+          - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCwOv93E49NSD7F1QK1g4D8RsG95HPYn4ue8cg0nynmP4Ebvqj/g+jy00Su1d9Ph5WXbki2T1NJL8O3SNbod/9mqYcoBLv6XGoxoGyaqB7wizsnfGplUp+h0ssod95W9eg30hXFXk7fD3m13jT+WAH5znIYqgndjlntBG9qsqqk+u8u2ujuiHb6lePR0JVOZ3MhfwBOmetzOZQy268BkIAY1h7+tlHWHFkKjhCE98sO/yVf7CLqIONE3WI+digavnCOX+/2udAcaq4P25qMlsZvuL521MDsWOviz37GAczykGpoRui8EHr3L8uCnd/eOtMA4dOO7E9Zb7xWgQxLUWQR/AIjzZI1IWsZa0gX3cvHFnK3IP1fWpMP/rVATxrVjGflbnBEmAUj5P4WVppUXRUvA6QujhqxDv9ah0a3BU2ggScePG8N3zBomTKe/U6EyraSfCQuEVmYiFN6g2+ya/Kn0P60DyEi/KQYYo/9PBDq9wcme+pbcmpb66HoZo6p3hYhfr58yU1fsLjE9VJsQTVIt7el/hO337/DmzsV9UJcl+pRrK9+opcMAwZtwwElM+DvzVVPGlOnzmZB2ozbhO1KUjP0qBi7+JnWW/HILexIDCZnDz5UUvHQLtAcNYgvn0Jv1150EvSsLncCLB31xAgsjcP6hpT6ieCmSqDbGeVbCw==
