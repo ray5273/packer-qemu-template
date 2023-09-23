@@ -1,10 +1,9 @@
 #cloud-config
 autoinstall:
   version: 1
-  early-commands:
-        # workaround to stop ssh for packer as it thinks it timed out
-        - sudo systemctl stop ssh
   locale: en_US
+  early-commands:
+    - sudo systemctl stop ssh
   apt:
     geoip: true
     disable_components: []
@@ -12,11 +11,14 @@ autoinstall:
     primary:
       - arches: [amd64, i386]
         uri: http://kr.archive.ubuntu.com/ubuntu/
+  packages: [openssh-server, curl, vim]
+  identity:
+    hostname: ubuntu-server
+    username: ubuntu
+    password: s0m3password
   network:
        ethernets:
-         ens18:
-           match:
-             driver: virtio-net
+         ens33f0:
            dhcp4: true
        version: 2
   keyboard:
@@ -24,15 +26,17 @@ autoinstall:
   storage:
     layout:
       name: lvm
-  identity:
-    hostname: ubuntu
-    username: ubuntu
-    password: $6$j6o4sLKzhh7Jrj6z$raVBBHOOXIQRFBw4yM4bRAGNtVhXd6SMT8YZX2t814l/uKHAA.M3f5XPNghxraB7T1b2jBWBYPUMFBsmOotDD0  
   ssh:
     install-server: true
     allow-pw: true
-  packages:
-    - qemu-guest-agent  
+  user-data:
+    disable_root: false
+    timezone: KST
   late-commands:
+    - sed -i -e 's/^#\?PasswordAuthentication.*/PasswordAuthentication yes/g' /target/etc/ssh/sshd_config
     - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
     - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
+    - curtin in-target --target=/target -- chmod 440 /etc/sudoers.d/ubuntu
+    # storage was a pain in the ass and merged multiple things, I just want a 100% use of the fs. (alt option: https://gist.github.com/anedward01/b68e00bb2dcfa4f1335cd4590cbc8484#file-user-data-L97-L199)
+    - curtin in-target --target=/target -- lvextend -l +100%FREE /dev/mapper/ubuntu--vg-ubuntu--lv
+    - curtin in-target --target=/target -- resize2fs /dev/mapper/ubuntu--vg-ubuntu--lv
