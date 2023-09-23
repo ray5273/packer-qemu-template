@@ -4,6 +4,10 @@ autoinstall:
   locale: en_US
   keyboard:
     layout: us
+  apt:
+    primary:
+      - arches: [default]
+        uri: http://kr.archive.ubuntu.com/ubuntu/
   early-commands:
     - systemctl stop ssh
   late-commands:

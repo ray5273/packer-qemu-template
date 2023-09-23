@@ -7,11 +7,12 @@ Packer Qemu Template
 
 # TODO list
 
+- [x] Check apt source address can be changed (solution: add apt sources in http/user-data)
 - [ ] Add network configuration shell script
 - [ ] Check bridge setting is working
 - [ ] Check Ansible Provisioning is working
 - [ ] Upgrade QEMU version and check compatibility
-- [ ] Add automatic deploy is possible with any tools (e.g. vagrant, canonicall maas)
+- [ ] Add automatic deploy is possible with any tools (e.g. vagrant, canonical maas)
 - [ ] Check packer-maas : https://github.com/canonical/packer-maas/tree/main/ubuntu
 
 # How To Build QEMU image with Packer
