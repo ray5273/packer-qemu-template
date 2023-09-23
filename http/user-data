@@ -1,0 +1,38 @@
+#cloud-config
+autoinstall:
+  version: 1
+  early-commands:
+        # workaround to stop ssh for packer as it thinks it timed out
+        - sudo systemctl stop ssh
+  locale: en_US
+  apt:
+    geoip: true
+    disable_components: []
+    preserve_sources_list: false
+    primary:
+      - arches: [amd64, i386]
+        uri: http://kr.archive.ubuntu.com/ubuntu/
+  network:
+       ethernets:
+         ens18:
+           match:
+             driver: virtio-net
+           dhcp4: true
+       version: 2
+  keyboard:
+    layout: us
+  storage:
+    layout:
+      name: lvm
+  identity:
+    hostname: ubuntu
+    username: ubuntu
+    password: $6$j6o4sLKzhh7Jrj6z$raVBBHOOXIQRFBw4yM4bRAGNtVhXd6SMT8YZX2t814l/uKHAA.M3f5XPNghxraB7T1b2jBWBYPUMFBsmOotDD0  
+  ssh:
+    install-server: true
+    allow-pw: true
+  packages:
+    - qemu-guest-agent  
+  late-commands:
+    - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac/" /target/etc/netplan/00-installer-config.yaml'
+    - echo 'ubuntu ALL=(ALL) NOPASSWD:ALL' > /target/etc/sudoers.d/ubuntu
