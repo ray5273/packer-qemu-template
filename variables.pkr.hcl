@@ -41,10 +41,15 @@ variable "ssh_password" {
 
 variable "ssh_username" {
   type    = string
-  default = "root"
+  default = "ubuntu"
 }
 
-variable "ssh_ubuntu_password" {
+variable "output_dir" {
   type    = string
-  default = "ubuntu"
+  default = "output"
+}
+
+variable "vm_name" {
+  type    = string
+  default = "ubuntu-22-04-amd64"
 }

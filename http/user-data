@@ -10,6 +10,7 @@ autoinstall:
         uri: http://kr.archive.ubuntu.com/ubuntu/
   early-commands:
     - systemctl stop ssh
+  # To prevent restart of cdrom installation, add following late-commands
   late-commands:
     - |
       if [ -d /sys/firmware/efi ]; then
@@ -31,6 +32,7 @@ autoinstall:
       name: direct
     swap:
       size: 0
+  # Add user ubuntu, ssh and login added
   user-data:
     package_upgrade: false
     timezone: KST
