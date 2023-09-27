@@ -19,6 +19,11 @@ Packer QEMU Template for Ubuntu 22.04.02 live server
 - [ ] Check packer-maas : https://github.com/canonical/packer-maas/tree/main/ubuntu
 - [ ] Consider make CI/CD pipeline for QEMU image
 
+## Install QEMU
+
+- install libslirp v4.7.0 (from https://gitlab.freedesktop.org/slirp/libslirp.git)
+- install QEMU v8.0.2 (./configure --enable-slirp needed)
+
 ## How To Build QEMU image with Packer
 
 Build QEMU image by running following command
