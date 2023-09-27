@@ -44,6 +44,7 @@ Build 'qemu.example' finished after 13 minutes 55 seconds.
 ==> Wait completed after 13 minutes 55 seconds
 ```
 
+in case of building image without KVM accelerate, it can take more than 55 minutes.
 
 ## Password Generation in http/user-data
 
@@ -68,7 +69,22 @@ qemu-system-x86_64 -name 22-04-live-server \
 -device virtio-net,netdev=user.0 \  
 -drive file=./output/ubuntu-server-22-04-2-amd64-template,if=virtio,cache=writeback,discard=ignore,format=qcow2 \              
 -machine type=q35,accel=kvm \              
--smp cpus=4,sockets=4 \
+-smp 4 \
 -m 4096M \
--bios /usr/share/ovmf/OVMF.fd
+-bios /usr/share/OVMF/OVMF_CODE.fd
 ```
+
+## How to set vnc server
+- vnc_bind_address set "0.0.0.0" in template.pkr.hcl
+- open inbound ports if you use cloud services (Azure, AWS, GCP)
+- open firewall like following commands
+```
+sudo ufw allow 5900:6000/tcdp
+sudo ufw allow 5900:6000/udp
+
+sudo ufw disable
+sudo ufw enable
+
+sudo ufw status
+``` 
+

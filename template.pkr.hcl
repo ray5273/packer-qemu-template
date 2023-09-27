@@ -45,11 +45,6 @@ variable "ssh_username" {
   description = "If you want to change username, check http/user-data::user-data::users::name"
 }
 
-variable "output_dir" {
-  type    = string
-  default = "output"
-}
-
 variable "vm_name" {
   type    = string
   default = "ubuntu-server-22-04-2-amd64-template"
@@ -72,7 +67,7 @@ variable "output_directory"{
 
 variable "disk_size"{
   type    = string
-  default = "60G"
+  default = "15G"
 }
 
 variable "cpus"{
@@ -83,6 +78,11 @@ variable "cpus"{
 variable "memory"{
   type    = number
   default = 4096
+}
+
+variable "vnc_bind_address"{
+  type    = string
+  default = "0.0.0.0"
 }
 
 source "qemu" "example" {
@@ -96,11 +96,12 @@ source "qemu" "example" {
   disk_size        = var.disk_size
   format           = "qcow2"
   accelerator      = "kvm"
+  vnc_bind_address = var.vnc_bind_address
   http_directory   = var.http_directory
   ssh_username     = var.ssh_username
   ssh_password     = var.ssh_password
   ssh_pty	   = true
-  ssh_timeout      = "20m"
+  ssh_timeout      = "60m"
   machine_type     = var.machine_type
   cpu_model        = var.cpu_model
   cpus		   = var.cpus
