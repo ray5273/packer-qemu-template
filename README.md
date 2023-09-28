@@ -33,6 +33,13 @@ Build QEMU image by running following command
 PACKER_LOG=1 packer build --force template.pkr.hcl
 ```
 
+or more specific command
+
+```
+PACKER_LOG=1 packer build -only=qemu.example --force .
+```
+
+
 Expected build result in case of success
 
 ```
@@ -95,7 +102,7 @@ sudo ufw status
 
 ## How to upload template file
 
-- Rifer following link (https://maas.io/docs/how-to-customise-images#heading--how-to-upload-packer-images-to-maas)
+- Refer following link (https://maas.io/docs/how-to-customise-images#heading--how-to-upload-packer-images-to-maas)
 - Need packer packages for generating Ubuntu template.
 ```
 sudo apt install packer
