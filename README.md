@@ -13,10 +13,10 @@ Packer QEMU Template for Ubuntu 22.04.02 live server
 - [x] Add Variable hcl file (solution : add variables in template.pkr.hcl file)
 - [ ] Add network configuration shell script
 - [ ] Check bridge setting 
-- [ ] Check Ansible Provisioning or Shell Provisioning
+- [ ] Add Ansible Provisioning
 - [x] Upgrade QEMU version and check compatibility (solution: v8.0.2 checked in WSL2 env)
 - [ ] Add automatic deploy is possible with any tools (e.g. vagrant, canonical maas)
-- [ ] Check packer-maas : https://github.com/canonical/packer-maas/tree/main/ubuntu
+- [x] Check packer-maas : https://github.com/canonical/packer-maas/tree/main/ubuntu
 - [ ] Consider make CI/CD pipeline for QEMU image
 
 ## Install QEMU
@@ -45,7 +45,7 @@ Build 'qemu.example' finished after 13 minutes 55 seconds.
 ==> Wait completed after 13 minutes 55 seconds
 ```
 
-in case of building image without KVM accelerate, it can take more than 1 Hour.
+in case of building image without KVM accelerate, it can take more time than 1 Hour (Takes 1 Hour 16 minutes with following options : without accelerate, cpu=3, memory=4096 option).
 
 ## Password Generation in http/user-data
 
@@ -92,4 +92,27 @@ sudo ufw enable
 
 sudo ufw status
 ``` 
+
+## How to upload template file
+
+- Rifer following link (https://maas.io/docs/how-to-customise-images#heading--how-to-upload-packer-images-to-maas)
+- Need packer packages for generating Ubuntu template.
+```
+sudo apt install packer
+sudo apt install qemu-utils
+sudo apt install qemu-system
+sudo apt install ovmf
+sudo apt install cloud-image-utils
+```
+
+- Upload packer image to MAAS
+
+```
+$ maas admin boot-resources create \
+    name='custom/ubuntu-raw' \
+    title='Ubuntu Custom RAW' \
+    architecture='amd64/generic' \
+    filetype='ddgz' \
+    content@=ubuntu-2204-server.dd.gz
+```
 

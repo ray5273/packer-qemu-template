@@ -72,7 +72,7 @@ variable "disk_size"{
 
 variable "cpus"{
   type    = number
-  default = 6
+  default = 10
 }
 
 variable "memory"{
@@ -128,6 +128,16 @@ build {
   sources = ["source.qemu.example"]
   provisioner "shell" {
     inline = [ "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for Cloud-Init...'; sleep 1; done" ]
+  }
+#  provisioner "shell" {
+#    environment_vars  = ["HOME_DIR=/home/ubuntu", "http_proxy=${var.http_proxy}", "https_proxy=${var.https_proxy}", "no_proxy=${var.no_proxy}"]
+#    execute_command   = "echo 'ubuntu' | {{ .Vars }} sudo -S -E sh -eux '{{ .Path }}'"
+#    expect_disconnect = true
+#    scripts           = ["${path.root}/scripts/curtin.sh", "${path.root}/scripts/networking.sh", "${path.root}/scripts/cleanup.sh"]
+#  }
+
+  post-processor "compress" {
+    output = "ubuntu-2204-server.dd.gz"
   }
 }
 
