@@ -4,9 +4,11 @@ Packer QEMU Template for Ubuntu 22.04.02 live server
 
 ## Prerequisite
 - Packer (v1.9.4)
-- Pakcer Plugin Qemu (v1.0.9)
+- Packer Plugin Qemu (v1.0.9)
+- Packer Provisioner ansible (v1.1.0)
 - QEMU (7.1.0, v8.0.2 (slirp enabled))
-
+- Ansible 2.10.8 tested
+ 
 ## TODO list
 
 - [x] Check apt source address can be changed (solution: add apt sources in http/user-data)

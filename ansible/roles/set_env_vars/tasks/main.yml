@@ -1,0 +1,20 @@
+---
+- name: Set environment variable for HTTP Proxy
+  lineinfile:
+    path: /etc/environment
+    line: 'HTTP_PROXY=http://your_http_proxy_server:port'
+
+- name: Set environment variable for HTTPS Proxy
+  lineinfile:
+    path: /etc/environment
+    line: 'HTTPS_PROXY=http://your_https_proxy_server:port'
+
+- name: Set environment variable for No Proxy domains
+  lineinfile:
+    path: /etc/environment
+    line: 'NO_PROXY=localhost,127.0.0.1,.your_domain.com'
+
+- name: Set environment variable EXAMPLE_VAR
+  lineinfile:
+    path: /etc/environment
+    line: 'EXAMPLE_VAR=value'

@@ -5,6 +5,11 @@ packer {
       version = "~> 1.0"
       source  = "github.com/hashicorp/qemu"
     }
+    ansible = {
+      version = "~> 1"
+      source = "github.com/hashicorp/ansible"
+    }
+
   }
 }
 
@@ -85,7 +90,7 @@ variable "vnc_bind_address"{
   default = "0.0.0.0"
 }
 
-source "qemu" "example" {
+source "qemu" "template" {
   iso_urls         = [
 	"file:///home/sh/packer-qemu/ubuntu-22.04.2-live-server-amd64.iso",
 	"http://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.2-live-server-amd64.iso"
@@ -118,6 +123,7 @@ source "qemu" "example" {
 	"boot<enter>"
   ]
   use_default_display = true
+  skip_compaction     = true
   headless	      = var.headless
   qemuargs = [ # Depending on underlying machine the file may have different location
     ["-bios", "/usr/share/OVMF/OVMF_CODE.fd"]
@@ -125,20 +131,28 @@ source "qemu" "example" {
 }
 
 build {
-  sources = ["source.qemu.example"]
+  sources = ["source.qemu.template"]
   provisioner "shell" {
     inline = [ "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for Cloud-Init...'; sleep 1; done" ]
   }
-#  provisioner "shell" {
-#    environment_vars  = ["HOME_DIR=/home/ubuntu", "http_proxy=${var.http_proxy}", "https_proxy=${var.https_proxy}", "no_proxy=${var.no_proxy}"]
-#    execute_command   = "echo 'ubuntu' | {{ .Vars }} sudo -S -E sh -eux '{{ .Path }}'"
-#    expect_disconnect = true
-#    scripts           = ["${path.root}/scripts/curtin.sh", "${path.root}/scripts/networking.sh", "${path.root}/scripts/cleanup.sh"]
-#  }
 
-  post-processor "compress" {
-    output = "ubuntu-2204-server.dd.gz"
+  provisioner "ansible" {
+    playbook_file = "./ansible/playbook.yml"
+    groups = ["your_qemu_group"]
+    use_proxy = false
+    ansible_env_vars = [
+	"ANSIBLE_HOST_KEY_CHECKING=False",
+	"ANSIBLE_SSH_PIPELINING=False",
+	"ansible_ssh_user=${var.ssh_username}",
+	"ansible_ssh_pass=${var.ssh_password}"
+    ]
+    ssh_authorized_key_file = "./sshkey/id_rsa.pub"
   }
+  
+
+#  post-processor "compress" {
+#    output = "ubuntu-2204-server.dd.gz"
+#  }
 }
 
 

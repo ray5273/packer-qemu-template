@@ -1,0 +1,6 @@
+---
+- name: Set Environment Variables
+  hosts: your_qemu_group
+  roles:
+    - set_env_vars
+
