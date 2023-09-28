@@ -23,6 +23,7 @@ Packer QEMU Template for Ubuntu 22.04.02 live server
 
 - install libslirp v4.7.0 (from https://gitlab.freedesktop.org/slirp/libslirp.git)
 - install QEMU v8.0.2 (./configure --enable-slirp needed)
+- install libvirtd 9.2.0 (https://download.libvirt.org/)
 
 ## How To Build QEMU image with Packer
 
@@ -44,7 +45,7 @@ Build 'qemu.example' finished after 13 minutes 55 seconds.
 ==> Wait completed after 13 minutes 55 seconds
 ```
 
-in case of building image without KVM accelerate, it can take more than 55 minutes.
+in case of building image without KVM accelerate, it can take more than 1 Hour.
 
 ## Password Generation in http/user-data
 
@@ -62,7 +63,8 @@ user-data:
 
 ## How To Run QEMU image built by Packer
 - bios option needed ( if bios option doesn't exist, boot hangs )
-
+- vnc 0.0.0.0:1 means access vnc is possible from any_address:5901
+- NOTE : -nographic -serial mon:stdio option does not support in 
 ``` 
 qemu-system-x86_64 -name 22-04-live-server \               
 -netdev user,id=user.0,hostfwd=tcp::4141-:22 \              
@@ -71,17 +73,20 @@ qemu-system-x86_64 -name 22-04-live-server \
 -machine type=q35,accel=kvm \              
 -smp 4 \
 -m 4096M \
--bios /usr/share/OVMF/OVMF_CODE.fd
+-bios /usr/share/OVMF/OVMF_CODE.fd \
+-vnc 0.0.0.0:1
 ```
 
-## How to set vnc server
+## How to set vnc server in QEMU running server
 - vnc_bind_address set "0.0.0.0" in template.pkr.hcl
 - open inbound ports if you use cloud services (Azure, AWS, GCP)
 - open firewall like following commands
 ```
+# open 5900~6000 port
 sudo ufw allow 5900:6000/tcdp
 sudo ufw allow 5900:6000/udp
 
+# restart firewall setting
 sudo ufw disable
 sudo ufw enable
 
