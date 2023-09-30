@@ -1,4 +1,4 @@
-# packer-qemu-template
+# Packer QEMU Template
 
 Packer QEMU Template for Ubuntu 22.04.02 live server 
 
@@ -7,7 +7,7 @@ Packer QEMU Template for Ubuntu 22.04.02 live server
 - Packer Plugin Qemu (v1.0.9)
 - Packer Provisioner ansible (v1.1.0)
 - QEMU (7.1.0, v8.0.2 (slirp enabled))
-- Ansible 2.10.8 tested
+- Ansible (2.15.4)
  
 ## TODO list
 
@@ -15,11 +15,12 @@ Packer QEMU Template for Ubuntu 22.04.02 live server
 - [x] Add Variable hcl file (solution : add variables in template.pkr.hcl file)
 - [ ] Add network configuration shell script
 - [ ] Check bridge setting 
-- [ ] Add Ansible Provisioning
+- [x] Add Ansible Provisioning (solution : add ansible files)
 - [x] Upgrade QEMU version and check compatibility (solution: v8.0.2 checked in WSL2 env)
 - [ ] Add automatic deploy is possible with any tools (e.g. vagrant, canonical maas)
-- [x] Check packer-maas : https://github.com/canonical/packer-maas/tree/main/ubuntu
+- [x] Check packer-maas : https://github.com/canonical/packer-maas/tree/main/ubuntu (solution: can be upload template to maas)
 - [ ] Consider make CI/CD pipeline for QEMU image
+- [ ] arm64 supported
 
 ## Install QEMU
 
@@ -38,37 +39,22 @@ PACKER_LOG=1 packer build --force template.pkr.hcl
 or more specific command
 
 ```
-PACKER_LOG=1 packer build -only=qemu.example --force .
+PACKER_LOG=1 packer build -only=qemu.template --force .
 ```
-
 
 Expected build result in case of success
 
 ```
-2023/09/24 23:37:03 [INFO] (telemetry) ending qemu.example
+2023/09/24 23:37:03 [INFO] (telemetry) ending qemu.template
 ==> Wait completed after 13 minutes 55 seconds
-Build 'qemu.example' finished after 13 minutes 55 seconds.
+Build 'qemu.template' finished after 13 minutes 55 seconds.
 ==> Builds finished. The artifacts of successful builds are:
 
-2023/09/24 23:37:03 machine readable: qemu.example,artifact-count []string{"1"}
+2023/09/24 23:37:03 machine readable: qemu.template,artifact-count []string{"1"}
 ==> Wait completed after 13 minutes 55 seconds
 ```
 
 in case of building image without KVM accelerate, it can take more time than 1 Hour (Takes 1 Hour 16 minutes with following options : without accelerate, cpu=3, memory=4096 option).
-
-## Password Generation in http/user-data
-
-`openssl passwd -6 -salt xyz`
-
-result of following command should be added in user-data
-```
-#cloud-config
-user-data:
-  users:
-    - name: ubuntu
-      passwd: "{Add openssl result here}"
-
-```
 
 ## How To Run QEMU image built by Packer
 - bios option needed ( if bios option doesn't exist, boot hangs )
@@ -82,8 +68,24 @@ qemu-system-x86_64 -name 22-04-live-server \
 -machine type=q35,accel=kvm \              
 -smp 4 \
 -m 4096M \
--bios /usr/share/OVMF/OVMF_CODE.fd \
+-bios ./OVMF/OVMF_efi_target_system_is_x86.fd \
 -vnc 0.0.0.0:1
+```
+
+# Custom Configuration
+
+## Password Generation in http/user-data
+
+`openssl passwd -6 -salt xyz`
+
+result of following command should be added in user-data
+```
+#cloud-config
+user-data:
+  users:
+    - name: ubuntu
+      passwd: "{Add openssl result here}"
+
 ```
 
 ## How to set vnc server in QEMU running server
@@ -101,6 +103,8 @@ sudo ufw enable
 
 sudo ufw status
 ``` 
+
+# Upload template file to Canonical MAAS
 
 ## How to upload template file
 

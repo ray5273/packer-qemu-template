@@ -24,21 +24,6 @@ variable "http_directory" {
   default = "http"
 }
 
-variable "http_proxy" {
-  type    = string
-  default = "${env("http_proxy")}"
-}
-
-variable "https_proxy" {
-  type    = string
-  default = "${env("https_proxy")}"
-}
-
-variable "no_proxy" {
-  type    = string
-  default = "${env("no_proxy")}"
-}
-
 variable "ssh_password" {
   type    = string
   default = "ubuntu"
@@ -47,22 +32,25 @@ variable "ssh_password" {
 variable "ssh_username" {
   type    = string
   default = "ubuntu"
-  description = "If you want to change username, check http/user-data::user-data::users::name"
-}
-
-variable "vm_name" {
-  type    = string
-  default = "ubuntu-server-22-04-2-amd64-template"
+  description = "If you want to change username, check http/user-data::user-data::users::name. username must be same."
 }
 
 variable "machine_type"{
   type    = string
   default = "q35"
+  description = "If your target system is x86_64, use q35. If your target system is aarch64, use virt,highmem=on"
+}
+
+variable "accelerator"{
+  type    = string
+  default = ""
+  description = "x86 : kvm, aarch64 (Mac M1) : hvf"
 }
 
 variable "cpu_model"{
   type    = string
   default = "EPYC-Rome"
+  description = "cpu model can be changed depending on qemu target system (x86, aarch64), x86: EPYC-Rome, aarch64: host"
 }
 
 variable "output_directory"{
@@ -90,26 +78,48 @@ variable "vnc_bind_address"{
   default = "0.0.0.0"
 }
 
+variable "iso_file_name"{
+  type    = string
+  default = "ubuntu-22.04.2-live-server-amd64.iso"
+}
+
+variable "iso_checksum"{
+  type    = string
+  default = "5e38b55d57d94ff029719342357325ed3bda38fa80054f9330dc789cd2d43931"
+  description = "ubuntu2204-amd64:5e38b55d57d94ff029719342357325ed3bda38fa80054f9330dc789cd2d43931, ubuntu2204-arm64:12eed04214d8492d22686b72610711882ddf6222b4dc029c24515a85c4874e95"
+}
+
+variable "qemu_binary"{
+ type     = string
+ default  = "qemu-system-x86_64"
+}
+
+variable "vm_name" {
+  type    = string
+  default = "ubuntu-server-22-04-2-amd64-template"
+}
+
 source "qemu" "template" {
+  qemu_binary      = "${var.qemu_binary}"
   iso_urls         = [
-	"file:///home/sh/packer-qemu/ubuntu-22.04.2-live-server-amd64.iso",
-	"http://old-releases.ubuntu.com/releases/22.04/ubuntu-22.04.2-live-server-amd64.iso"
+	"file:///Users/sanghyeok/packer-qemu-template/${var.iso_file_name}",
+	"http://old-releases.ubuntu.com/releases/22.04/${var.iso_file_name}"
   ]
-  iso_checksum     = "sha256:5e38b55d57d94ff029719342357325ed3bda38fa80054f9330dc789cd2d43931"
+  iso_checksum     = "sha256:${var.iso_checksum}"
   output_directory = var.output_directory
   shutdown_command = "echo 'ubuntu' | sudo -S shutdown -P now"
   disk_size        = var.disk_size
   format           = "qcow2"
-  accelerator      = "kvm"
+  accelerator      = var.accelerator
   vnc_bind_address = var.vnc_bind_address
   http_directory   = var.http_directory
   ssh_username     = var.ssh_username
   ssh_password     = var.ssh_password
-  ssh_pty	   = true
+  ssh_pty	       = true
   ssh_timeout      = "60m"
   machine_type     = var.machine_type
   cpu_model        = var.cpu_model
-  cpus		   = var.cpus
+  cpus		       = var.cpus
   memory           = var.memory
   vm_name          = var.vm_name
   net_device       = "virtio-net"
@@ -126,7 +136,8 @@ source "qemu" "template" {
   skip_compaction     = true
   headless	      = var.headless
   qemuargs = [ # Depending on underlying machine the file may have different location
-    ["-bios", "/usr/share/OVMF/OVMF_CODE.fd"]
+    ["-bios", "./OVMF/OVMF_efi_target_system_is_x86.fd"],
+	["-boot", "d"]
   ] 
 }
 
@@ -138,21 +149,25 @@ build {
 
   provisioner "ansible" {
     playbook_file = "./ansible/playbook.yml"
-    groups = ["your_qemu_group"]
-    use_proxy = false
+    groups = ["qemu_group"]
+    use_proxy = true
+	user = "${var.ssh_username}"
     ansible_env_vars = [
 	"ANSIBLE_HOST_KEY_CHECKING=False",
-	"ANSIBLE_SSH_PIPELINING=False",
 	"ansible_ssh_user=${var.ssh_username}",
 	"ansible_ssh_pass=${var.ssh_password}"
     ]
-    ssh_authorized_key_file = "./sshkey/id_rsa.pub"
+	# ansible_python_interpreter parameter must be needed because packer-qemu-ansible hangs when finding remote python interpreter
+	extra_arguments = [
+	    "-vv",
+        "--extra-vars",
+        "ansible_python_interpreter=/usr/bin/python3"
+    ]
   }
-  
 
-#  post-processor "compress" {
-#    output = "ubuntu-2204-server.dd.gz"
-#  }
+  post-processor "compress" {
+    output = "ubuntu-2204-server.dd.gz"
+  }
 }
 
 
