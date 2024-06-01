@@ -87,7 +87,6 @@ qemu-system-x86_64 -name 22-04-live-server \
 ```
 - if upper command does not respond, use following command.
 ```
-``` 
 qemu-system-x86_64 -name 22-04-live-server \
 -netdev user,id=user.0,hostfwd=tcp::4141-:22 \
 -device virtio-net,netdev=user.0 \
@@ -96,7 +95,8 @@ qemu-system-x86_64 -name 22-04-live-server \
 -smp 4 \
 -m 4096M \
 -bios ./OVMF/OVMF_efi_target_system_is_x86.fd
-```
+
+``` 
 
 # Custom Configuration
 
