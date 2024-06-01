@@ -85,6 +85,18 @@ qemu-system-x86_64 -name 22-04-live-server \
 -bios ./OVMF/OVMF_efi_target_system_is_x86.fd \
 -vnc 0.0.0.0:1
 ```
+- if upper command does not respond, use following command.
+```
+``` 
+qemu-system-x86_64 -name 22-04-live-server \
+-netdev user,id=user.0,hostfwd=tcp::4141-:22 \
+-device virtio-net,netdev=user.0 \
+-drive file=./output/ubuntu-server-22-04-2-amd64-template,if=virtio,cache=writeback,discard=ignore,format=qcow2 \
+-machine type=q35,accel=kvm \
+-smp 4 \
+-m 4096M \
+-bios ./OVMF/OVMF_efi_target_system_is_x86.fd
+```
 
 # Custom Configuration
 
