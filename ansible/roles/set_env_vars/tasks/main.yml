@@ -60,3 +60,10 @@
     name: docker
     enabled: yes
     state: started
+
+- name: Install network and nvme binary
+  apt:
+    name:
+      - net-tools
+      - nvme-cli
+    state: present
